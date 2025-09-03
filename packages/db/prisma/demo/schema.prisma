@@ -1,0 +1,44 @@
+// Demo version with simplified schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./demo.db"
+}
+
+// Simplified models for demo purposes
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  name     String
+  role     String
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  category    String
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  total      Float
+  status     String
+  createdAt  DateTime @default(now())
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
