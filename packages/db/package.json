@@ -13,6 +13,7 @@
     "migrate:reset": "prisma migrate reset",
     "studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
+    "seed:demo": "tsx prisma/seed.demo.ts",
     "db:push": "prisma db push",
     "db:pull": "prisma db pull"
   },

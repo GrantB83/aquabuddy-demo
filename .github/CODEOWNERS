@@ -1,0 +1,19 @@
+# Global owners
+* @GrantB83
+
+# Frontend applications
+/apps/web/ @GrantB83
+
+# Backend API
+/apps/api/ @GrantB83
+
+# Database and shared packages
+/packages/db/ @GrantB83
+/packages/ui/ @GrantB83
+/packages/lib/ @GrantB83
+
+# Configuration files
+*.yml @GrantB83
+*.yaml @GrantB83
+*.json @GrantB83
+*.md @GrantB83

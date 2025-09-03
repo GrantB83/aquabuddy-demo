@@ -1,0 +1,180 @@
+// Demo Prisma Schema - Safe for Public Repository
+// This is a simplified version for demonstration purposes
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./demo.db"
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum MessageChannel {
+  whatsapp_web
+  email
+  sms
+}
+
+model Franchise {
+  id             Int       @id @default(autoincrement())
+  name           String
+  regNumber      String?
+  vatRegistered  Boolean   @default(false)
+  vatNumber      String?
+  address        String?   @db.Text
+  stores         Store[]
+  users          User[]
+  customers      Customer[]
+  items          Item[]
+  categories     Category[]
+  invoices       Invoice[]
+  payments       Payment[]
+
+  @@index([name])
+}
+
+model Store {
+  id          Int          @id @default(autoincrement())
+  franchiseId Int
+  name        String
+  code        String?      @db.VarChar(32)
+  address     String?      @db.Text
+  timezone    String?      @db.VarChar(64)
+  franchise   Franchise    @relation(fields: [franchiseId], references: [id])
+  customers   Customer[]
+  employees   Employee[]
+  invoices    Invoice[]
+  payments    Payment[]
+
+  @@unique([franchiseId, code])
+}
+
+model Role {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  users UserRole[]
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  franchiseId  Int?
+  email        String?    @unique @db.VarChar(191)
+  phoneE164    String?    @unique @db.VarChar(32)
+  passwordHash String?    @db.VarChar(255)
+  status       Status     @default(ACTIVE)
+  franchise    Franchise? @relation(fields: [franchiseId], references: [id])
+  roles        UserRole[]
+}
+
+model UserRole {
+  userId      Int
+  roleId      Int
+  franchiseId Int?
+  user        User @relation(fields: [userId], references: [id])
+  role        Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@unique([userId, roleId, franchiseId])
+}
+
+model Customer {
+  id                  Int        @id @default(autoincrement())
+  franchiseId         Int
+  storeId             Int?
+  name                String
+  email               String?    @unique @db.VarChar(191)
+  phoneE164           String?    @unique @db.VarChar(32)
+  status              Status     @default(ACTIVE)
+  franchise           Franchise  @relation(fields: [franchiseId], references: [id])
+  store               Store?     @relation(fields: [storeId], references: [id])
+  invoices            Invoice[]
+  payments            Payment[]
+
+  @@index([franchiseId, storeId])
+}
+
+model Category {
+  id          Int         @id @default(autoincrement())
+  franchiseId Int
+  name        String
+  parentId    Int?
+  franchise   Franchise   @relation(fields: [franchiseId], references: [id])
+  items       Item[]
+}
+
+model Item {
+  id             Int        @id @default(autoincrement())
+  franchiseId    Int
+  sku            String?    @db.VarChar(64)
+  name           String
+  categoryId     Int?
+  price          Decimal     @db.Decimal(10,2)
+  franchise      Franchise   @relation(fields: [franchiseId], references: [id])
+  category       Category?   @relation(fields: [categoryId], references: [id])
+  invoiceLines   InvoiceLine[]
+
+  @@unique([franchiseId, sku])
+}
+
+model Invoice {
+  id          Int        @id @default(autoincrement())
+  franchiseId Int
+  storeId     Int?
+  customerId  Int
+  number      String     @unique
+  status      String     @db.VarChar(32)
+  subtotal    Decimal    @db.Decimal(10,2)
+  taxTotal    Decimal    @db.Decimal(10,2)
+  grandTotal  Decimal    @db.Decimal(10,2)
+  issuedAt    DateTime
+  dueAt       DateTime?
+  franchise   Franchise  @relation(fields: [franchiseId], references: [id])
+  store       Store?     @relation(fields: [storeId], references: [id])
+  customer    Customer   @relation(fields: [customerId], references: [id])
+  lines       InvoiceLine[]
+  payments    Payment[]
+}
+
+model InvoiceLine {
+  id          Int      @id @default(autoincrement())
+  invoiceId   Int
+  itemId      Int?
+  description String
+  qty         Decimal  @db.Decimal(12,3)
+  unitPrice   Decimal  @db.Decimal(10,2)
+  lineTotal   Decimal  @db.Decimal(10,2)
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  item        Item?    @relation(fields: [itemId], references: [id])
+}
+
+model Payment {
+  id          Int        @id @default(autoincrement())
+  franchiseId Int
+  storeId     Int?
+  customerId  Int
+  amount      Decimal    @db.Decimal(10,2)
+  method      String     @db.VarChar(64)
+  receivedAt  DateTime
+  reference   String?    @db.VarChar(128)
+  franchise   Franchise  @relation(fields: [franchiseId], references: [id])
+  store       Store?     @relation(fields: [storeId], references: [id])
+  customer    Customer   @relation(fields: [customerId], references: [id])
+  invoices    Invoice[]
+}
+
+model Employee {
+  id                 Int       @id @default(autoincrement())
+  franchiseId        Int
+  storeId            Int
+  name               String
+  email              String?   @db.VarChar(191)
+  phoneE164          String?   @db.VarChar(32)
+  franchise          Franchise @relation(fields: [franchiseId], references: [id])
+  store              Store     @relation(fields: [storeId], references: [id])
+}

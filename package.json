@@ -9,8 +9,8 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
-    "dev:web": "npm run dev --workspace=apps/web",
-    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:api": "cd apps/api && npm run dev",
     "build": "npm run build --workspaces",
     "build:web": "npm run build --workspace=apps/web",
     "build:api": "npm run build --workspace=apps/api",
@@ -21,18 +21,26 @@
     "db:migrate": "npm run migrate:dev --workspace=packages/db",
     "db:studio": "npm run studio --workspace=packages/db",
     "db:seed": "npm run seed --workspace=packages/db",
+    "db:seed:demo": "npm run seed:demo --workspace=packages/db",
     "clean": "npm run clean --workspaces && rm -rf node_modules",
     "install:all": "npm install && npm run install:workspaces",
-    "install:workspaces": "npm install --workspaces"
+    "install:workspaces": "npm run install --workspaces",
+    "postinstall": "husky",
+    "commit:lint": "commitlint --edit",
+    "lint:staged": "lint-staged"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "typescript": "^5.2.2",
+    "@commitlint/cli": "^18.6.1",
+    "@commitlint/config-conventional": "^18.6.3",
     "@types/node": "^20.8.10",
-    "prettier": "^3.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "concurrently": "^8.2.2",
     "eslint": "^8.52.0",
     "husky": "^8.0.3",
-    "lint-staged": "^14.0.1"
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3",
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -69,6 +69,13 @@ dist/
 
 # Prisma
 packages/db/prisma/migrations/
+packages/db/prisma/schema.prisma
+packages/db/prisma/seed.ts
+
+# Sensitive Business Files
+perfect_water_dashboard_spec.md
+.env*
+!.env.example
 
 # Database
 *.db
