@@ -3,190 +3,196 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log('🌱 Seeding demo database...');
 
-  // Create roles
-  const roles = await Promise.all([
-    prisma.role.upsert({
-      where: { name: 'super_user' },
-      update: {},
-      create: { name: 'super_user' },
-    }),
-    prisma.role.upsert({
-      where: { name: 'owner' },
-      update: {},
-      create: { name: 'owner' },
-    }),
-    prisma.role.upsert({
-      where: { name: 'manager' },
-      update: {},
-      create: { name: 'manager' },
-    }),
-    prisma.role.upsert({
-      where: { name: 'admin' },
-      update: {},
-      create: { name: 'admin' },
-    }),
-    prisma.role.upsert({
-      where: { name: 'cashier' },
-      update: {},
-      create: { name: 'cashier' },
-    }),
-    prisma.role.upsert({
-      where: { name: 'customer' },
-      update: {},
-      create: { name: 'customer' },
-    }),
-  ]);
-
-  console.log('✅ Roles created:', roles.map(r => r.name));
-
-  // Create a sample franchise
+  // Create demo franchise
   const franchise = await prisma.franchise.create({
     data: {
-      name: 'Perfect Water Louis Trichardt',
-      regNumber: 'REG123456',
+      name: 'Demo Water Solutions',
+      regNumber: 'DEMO123456',
       vatRegistered: true,
       vatNumber: 'VAT123456789',
-      address: '123 Water Street, Louis Trichardt, Limpopo',
+      address: '123 Demo Street, Demo City, 12345',
     },
   });
 
-  console.log('✅ Franchise created:', franchise.name);
-
-  // Create a sample store
+  // Create demo store
   const store = await prisma.store.create({
     data: {
       franchiseId: franchise.id,
-      name: 'Main Store',
-      code: 'LTT001',
-      address: '123 Water Street, Louis Trichardt',
+      name: 'Demo Store',
+      code: 'DEMO01',
+      address: '456 Store Avenue, Demo City, 12345',
       timezone: 'Africa/Johannesburg',
     },
   });
 
-  console.log('✅ Store created:', store.name);
-
-  // Create a sample entity for invoicing
-  const entity = await prisma.entity.create({
-    data: {
-      franchiseId: franchise.id,
-      displayName: 'Perfect Water Louis Trichardt',
-      address: '123 Water Street, Louis Trichardt, Limpopo',
-      phone: '+27123456789',
-      email: 'info@pwltt.co.za',
-      vatNumber: 'VAT123456789',
-    },
+  // Create demo roles
+  const adminRole = await prisma.role.create({
+    data: { name: 'admin' },
   });
 
-  console.log('✅ Entity created:', entity.displayName);
+  const managerRole = await prisma.role.create({
+    data: { name: 'manager' },
+  });
 
-  // Create a sample super user
-  const superUser = await prisma.user.create({
+  const cashierRole = await prisma.role.create({
+    data: { name: 'cashier' },
+  });
+
+  // Create demo users
+  const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@perfectwater.co.za',
+      franchiseId: franchise.id,
+      email: 'admin@demo.com',
       phoneE164: '+27123456789',
-      passwordHash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/HS.iK8y', // password: admin123
+      passwordHash: '$2b$10$demo.hash.for.demo.purposes.only',
       status: 'ACTIVE',
-      roles: {
-        create: {
-          roleId: roles.find(r => r.name === 'super_user')!.id,
-          franchiseId: franchise.id,
-        },
-      },
     },
   });
 
-  console.log('✅ Super user created:', superUser.email);
+  // Assign roles to users
+  await prisma.userRole.create({
+    data: {
+      userId: adminUser.id,
+      roleId: adminRole.id,
+      franchiseId: franchise.id,
+    },
+  });
 
-  // Create sample tax rates
-  const vatRate = await prisma.taxRate.create({
+  // Create demo categories
+  const waterCategory = await prisma.category.create({
     data: {
       franchiseId: franchise.id,
-      name: 'VAT',
-      rate: 0.15, // 15%
-      activeFrom: new Date(),
+      name: 'Water Products',
     },
   });
 
-  console.log('✅ Tax rate created:', vatRate.name);
+  const equipmentCategory = await prisma.category.create({
+    data: {
+      franchiseId: franchise.id,
+      name: 'Equipment & Supplies',
+    },
+  });
 
-  // Create sample categories
-  const categories = await Promise.all([
-    prisma.category.create({
-      data: {
-        franchiseId: franchise.id,
-        name: 'Water Dispensers',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        franchiseId: franchise.id,
-        name: 'Water Filters',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        franchiseId: franchise.id,
-        name: 'Water Bottles',
-      },
-    }),
-  ]);
+  // Create demo items
+  const waterItem = await prisma.item.create({
+    data: {
+      franchiseId: franchise.id,
+      sku: 'WATER-001',
+      name: 'Premium Spring Water 5L',
+      categoryId: waterCategory.id,
+      price: 25.99,
+    },
+  });
 
-  console.log('✅ Categories created:', categories.map(c => c.name));
+  const filterItem = await prisma.item.create({
+    data: {
+      franchiseId: franchise.id,
+      sku: 'FILTER-001',
+      name: 'Water Filter Cartridge',
+      categoryId: equipmentCategory.id,
+      price: 89.99,
+    },
+  });
 
-  // Create sample items
-  const items = await Promise.all([
-    prisma.item.create({
-      data: {
-        franchiseId: franchise.id,
-        categoryId: categories.find(c => c.name === 'Water Dispensers')!.id,
-        sku: 'WD-001',
-        name: 'Premium Water Dispenser',
-        price: 2500.00,
-      },
-    }),
-    prisma.item.create({
-      data: {
-        franchiseId: franchise.id,
-        categoryId: categories.find(c => c.name === 'Water Filters')!.id,
-        sku: 'WF-001',
-        name: 'Carbon Water Filter',
-        price: 150.00,
-      },
-    }),
-  ]);
+  // Create demo customers
+  const customer1 = await prisma.customer.create({
+    data: {
+      franchiseId: franchise.id,
+      storeId: store.id,
+      name: 'John Demo',
+      email: 'john@demo.com',
+      phoneE164: '+27123456788',
+      status: 'ACTIVE',
+    },
+  });
 
-  console.log('✅ Items created:', items.map(i => i.name));
+  const customer2 = await prisma.customer.create({
+    data: {
+      franchiseId: franchise.id,
+      storeId: store.id,
+      name: 'Jane Sample',
+      email: 'jane@demo.com',
+      phoneE164: '+27123456787',
+      status: 'ACTIVE',
+    },
+  });
 
-  // Create sample inventory
-  await Promise.all([
-    prisma.inventory.create({
-      data: {
-        franchiseId: franchise.id,
-        storeId: store.id,
-        itemId: items.find(i => i.sku === 'WD-001')!.id,
-        qtyOnHand: 5,
-      },
-    }),
-    prisma.inventory.create({
-      data: {
-        franchiseId: franchise.id,
-        storeId: store.id,
-        itemId: items.find(i => i.sku === 'WF-001')!.id,
-        qtyOnHand: 25,
-      },
-    }),
-  ]);
+  // Create demo employees
+  const employee = await prisma.employee.create({
+    data: {
+      franchiseId: franchise.id,
+      storeId: store.id,
+      name: 'Demo Employee',
+      email: 'employee@demo.com',
+      phoneE164: '+27123456786',
+    },
+  });
 
-  console.log('✅ Inventory created');
+  // Create demo invoice
+  const invoice = await prisma.invoice.create({
+    data: {
+      franchiseId: franchise.id,
+      storeId: store.id,
+      customerId: customer1.id,
+      number: 'INV-2024-001',
+      status: 'PAID',
+      subtotal: 115.98,
+      taxTotal: 20.28,
+      grandTotal: 136.26,
+      issuedAt: new Date(),
+      dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    },
+  });
 
-  console.log('🎉 Database seeding completed successfully!');
+  // Create demo invoice lines
+  await prisma.invoiceLine.create({
+    data: {
+      invoiceId: invoice.id,
+      itemId: waterItem.id,
+      description: 'Premium Spring Water 5L',
+      qty: 2,
+      unitPrice: 25.99,
+      lineTotal: 51.98,
+    },
+  });
+
+  await prisma.invoiceLine.create({
+    data: {
+      invoiceId: invoice.id,
+      itemId: filterItem.id,
+      description: 'Water Filter Cartridge',
+      qty: 1,
+      unitPrice: 89.99,
+      lineTotal: 89.99,
+    },
+  });
+
+  // Create demo payment
+  await prisma.payment.create({
+    data: {
+      franchiseId: franchise.id,
+      storeId: store.id,
+      customerId: customer1.id,
+      amount: 136.26,
+      method: 'CARD',
+      receivedAt: new Date(),
+      reference: 'PAY-2024-001',
+    },
+  });
+
+  console.log('✅ Demo database seeded successfully!');
+  console.log(`📊 Created: ${franchise.name} franchise`);
+  console.log(`🏪 Created: ${store.name} store`);
+  console.log(`👥 Created: ${customer1.name} and ${customer2.name} customers`);
+  console.log(`🛍️ Created: ${waterItem.name} and ${filterItem.name} items`);
+  console.log(`📄 Created: Invoice ${invoice.number}`);
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seeding:', e);
+    console.error('❌ Error seeding demo database:', e);
     process.exit(1);
   })
   .finally(async () => {
