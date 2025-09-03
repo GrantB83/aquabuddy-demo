@@ -1,0 +1,30 @@
+export type { 
+  Franchise,
+  Store,
+  User,
+  Role,
+  UserRole,
+  Customer,
+  Item,
+  Category,
+  TaxRate,
+  Inventory,
+  Receipt,
+  ReceiptLine,
+  Invoice,
+  InvoiceLine,
+  Payment,
+  PaymentAllocation,
+  BankTransaction,
+  BankMatch,
+  Employee,
+  Shift,
+  DailyCompliance,
+  CompliancePhoto,
+  AIMessageLog,
+  AuditLog,
+  Entity,
+  PaymentType
+} from '@prisma/client';
+
+export type { Status, MessageChannel } from '@prisma/client';

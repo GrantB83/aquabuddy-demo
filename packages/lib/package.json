@@ -1,0 +1,21 @@
+{
+  "name": "@perfect-water/lib",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for Perfect Water applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "zod": "^3.22.4",
+    "date-fns": "^2.30.0",
+    "libphonenumber-js": "^1.10.37"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.8.10"
+  }
+}

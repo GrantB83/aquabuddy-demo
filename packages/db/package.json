@@ -1,0 +1,28 @@
+{
+  "name": "@perfect-water/db",
+  "version": "1.0.0",
+  "description": "Database package with Prisma schema and utilities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:reset": "prisma migrate reset",
+    "studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "db:push": "prisma db push",
+    "db:pull": "prisma db pull"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.4.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.4.2",
+    "typescript": "^5.2.2",
+    "tsx": "^4.6.2",
+    "@types/node": "^20.8.10"
+  }
+}
